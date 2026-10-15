@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Deal {
+  id                String    @id
+  deal_name         String
+  company           String
+  contact_person    String
+  stage             String
+  deal_value        Float
+  win_probability   Float
+  weighted_value    Float
+  owner             String
+  created_date      DateTime  @default(now())
+  expected_close    DateTime
+  actual_close_date DateTime?
+  lost_reason       String?
+  next_step_notes   String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
