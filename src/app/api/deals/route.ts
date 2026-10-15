@@ -1,36 +1,9 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { getStageProbability, calculateWeightedValue } from '@/lib/constants'
-import { initialDeals } from '@/lib/seed-data'
 
 export async function GET() {
   try {
-    let count = await prisma.deal.count()
-
-    // Auto-seed if database is currently empty
-    if (count === 0) {
-      for (const d of initialDeals) {
-        await prisma.deal.create({
-          data: {
-            id: d.id,
-            deal_name: d.deal_name,
-            company: d.company,
-            contact_person: d.contact_person,
-            stage: d.stage,
-            deal_value: d.deal_value,
-            win_probability: d.win_probability,
-            weighted_value: d.weighted_value,
-            owner: d.owner,
-            created_date: new Date(d.created_date),
-            expected_close: new Date(d.expected_close),
-            actual_close_date: d.actual_close_date ? new Date(d.actual_close_date) : null,
-            lost_reason: d.lost_reason || null,
-            next_step_notes: d.next_step_notes || null,
-          },
-        })
-      }
-    }
-
     const deals = await prisma.deal.findMany({
       orderBy: { created_date: 'desc' },
     })
@@ -106,5 +79,16 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error creating deal:', error)
     return NextResponse.json({ error: 'Failed to create deal' }, { status: 500 })
+  }
+}
+
+// DELETE /api/deals -> Clear all deals
+export async function DELETE() {
+  try {
+    const result = await prisma.deal.deleteMany({})
+    return NextResponse.json({ success: true, count: result.count })
+  } catch (error) {
+    console.error('Error deleting all deals:', error)
+    return NextResponse.json({ error: 'Failed to delete all deals' }, { status: 500 })
   }
 }

@@ -14,9 +14,10 @@ import {
 
 interface KpiCardsProps {
   deals: DealData[]
+  selectedYear?: string
 }
 
-export function KpiCards({ deals }: KpiCardsProps) {
+export function KpiCards({ deals, selectedYear = 'ALL' }: KpiCardsProps) {
   const { lang, t } = useLanguage()
 
   // Active deals are those not Closed Won and not Closed Lost
@@ -30,19 +31,28 @@ export function KpiCards({ deals }: KpiCardsProps) {
   const wonDeals = deals.filter((d) => d.stage.includes('Closed Won'))
   const lostDeals = deals.filter((d) => d.stage.includes('Closed Lost'))
 
-  const closedWonYTD = wonDeals.reduce((sum, d) => sum + (d.deal_value || 0), 0)
+  const closedWonValue = wonDeals.reduce((sum, d) => sum + (d.deal_value || 0), 0)
 
   const closedTotal = wonDeals.length + lostDeals.length
   const winRate = closedTotal > 0 ? Math.round((wonDeals.length / closedTotal) * 100) : 0
+
+  const periodLabel = selectedYear === 'ALL'
+    ? (lang === 'th' ? 'รวมทั้งหมด' : 'All-Time')
+    : selectedYear
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* 1. Total Pipeline Value */}
       <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            {t.kpiTotalPipeline}
-          </span>
+          <div className="flex items-center space-x-1.5">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              {t.kpiTotalPipeline}
+            </span>
+            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
+              {periodLabel}
+            </span>
+          </div>
           <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
             <Layers className="w-4 h-4" />
           </div>
@@ -64,9 +74,14 @@ export function KpiCards({ deals }: KpiCardsProps) {
       {/* 2. Weighted Forecast */}
       <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            {t.kpiWeightedForecast}
-          </span>
+          <div className="flex items-center space-x-1.5">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              {t.kpiWeightedForecast}
+            </span>
+            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
+              {periodLabel}
+            </span>
+          </div>
           <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
             <Sparkles className="w-4 h-4" />
           </div>
@@ -87,19 +102,24 @@ export function KpiCards({ deals }: KpiCardsProps) {
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-80" />
       </div>
 
-      {/* 3. Closed Won YTD */}
+      {/* 3. Closed Won */}
       <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            {t.kpiClosedWonYTD}
-          </span>
+          <div className="flex items-center space-x-1.5">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              {selectedYear === 'ALL' ? t.kpiClosedWonYTD : `Closed Won ${selectedYear}`}
+            </span>
+            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+              {periodLabel}
+            </span>
+          </div>
           <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
             <Trophy className="w-4 h-4" />
           </div>
         </div>
         <div className="mt-3">
           <div className="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
-            {formatCurrency(closedWonYTD, lang)}
+            {formatCurrency(closedWonValue, lang)}
           </div>
           <div className="mt-1 flex items-center text-xs text-slate-500 dark:text-slate-400">
             <span className="font-semibold text-emerald-600 dark:text-emerald-400 mr-1.5">
@@ -114,9 +134,14 @@ export function KpiCards({ deals }: KpiCardsProps) {
       {/* 4. Win Rate % */}
       <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            {t.kpiWinRate}
-          </span>
+          <div className="flex items-center space-x-1.5">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              {t.kpiWinRate}
+            </span>
+            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
+              {periodLabel}
+            </span>
+          </div>
           <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
             <PieChart className="w-4 h-4" />
           </div>

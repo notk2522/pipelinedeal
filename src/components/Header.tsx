@@ -9,22 +9,27 @@ import {
   Languages,
   Kanban,
   TableProperties,
+  Trash2,
 } from 'lucide-react'
 
 interface HeaderProps {
   onNewDeal: () => void
   onResetSeed: () => void
+  onClearAll: () => void
   activeView: 'kanban' | 'table'
   onViewChange: (view: 'kanban' | 'table') => void
   isSeeding?: boolean
+  dealCount: number
 }
 
 export function Header({
   onNewDeal,
   onResetSeed,
+  onClearAll,
   activeView,
   onViewChange,
   isSeeding = false,
+  dealCount,
 }: HeaderProps) {
   const { lang, toggleLang, t } = useLanguage()
 
@@ -83,18 +88,30 @@ export function Header({
             {/* Language Switcher */}
             <button
               onClick={toggleLang}
-              className="flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors shadow-xs"
+              className="flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors shadow-xs cursor-pointer"
               title="สลับภาษา / Switch Language"
             >
               <Languages className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>{lang === 'th' ? 'TH 🇹🇭' : 'EN 🇬🇧'}</span>
             </button>
 
+            {/* Clear All Deals Button (Shown when deals exist) */}
+            {dealCount > 0 && (
+              <button
+                onClick={onClearAll}
+                className="flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-medium text-rose-600 dark:text-rose-400 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-900/60 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors shadow-xs cursor-pointer"
+                title={t.clearAll}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden xl:inline">{t.clearAll}</span>
+              </button>
+            )}
+
             {/* Reset Seed Button */}
             <button
               onClick={onResetSeed}
               disabled={isSeeding}
-              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors shadow-xs disabled:opacity-50"
+              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
               title={t.resetSeed}
             >
               <RotateCcw className={`w-3.5 h-3.5 text-slate-500 ${isSeeding ? 'animate-spin' : ''}`} />
